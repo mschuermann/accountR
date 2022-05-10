@@ -44,12 +44,12 @@ create_aging_table <- function(df, open_amount, customer_column, invoice_number,
   df <- calc_days_overdue(df =df, due_date = due_date, categories= categories, include.infinitive = include.infinitive)
 
   df_1 <- as.data.frame(df)
-  df_2 <- df_1 %>%
-    pivot_wider(
-      names_from = category,
-      values_from = amount,
-      values_fill = list(amount = 0),
-      values_fn = list(amount = sum))
+  df_2 <-
+    pivot_wider(df_1,
+      names_from = df_1$category,
+      values_from = df_1$open_amount,
+      values_fill = list(df_1$open_amount = 0),
+      values_fn = list(df_1$open_amount = sum))
 
   df_3 <- df_2[, !(names(df_2) %in% drop)] %>%
     group_by(customer_column) %>%
