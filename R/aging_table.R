@@ -13,11 +13,6 @@ library(tidyverse)
 ## Invoice Date
 ## Due Date
 
-# Necessary are only those:
-## Name Debitor / Creditor
-## Currency of Invoice (only if not in the same currency)
-## Open Invoice Amount (net)
-## Due Date
 
 library(readxl)
 test_file <- read_xlsx("Test_File_1.xlsx")
