@@ -12,7 +12,8 @@ library(devtools)
 ## Invoice Date
 ## Due Date
 
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 
 library(readxl) # only for testing
 test_file <- read_xlsx("Test_File_1.xlsx") # only for testing
@@ -111,7 +112,7 @@ create_aging_table <- function(df, # the dataframe
 
   df <- aging_table(
     df = df,
-    open_amount = open_amount,
+    open_amount = all_of(open_amount),
     customer_column = customer_column,
     invoice_number = invoice_number,
     include.credit.notes = include.credit.notes
