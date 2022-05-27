@@ -10,8 +10,7 @@ df <- data.frame(
 
 FX_rate <- function(df, FC_column, HC_currency, date) {
   quantmod::oanda.currencies
-  exchange_rates <- getSymbols.oanda(as.String(concat(FC_column,"/",HC_currency)), from=date, to=date)
+  exchange_rates <- getSymbols.oanda(as.String(concat(FC_column, "/", HC_currency)), from = date, to = date)
 }
 
-FX_rate(df=df, FC_column=df$currency, HC_currency = "EUR", date="31/12/2021")
-
+FX_rate(df = df, FC_column = df$currency, HC_currency = "EUR", date = "31/12/2021")
