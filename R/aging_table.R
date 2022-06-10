@@ -1,65 +1,120 @@
-library(devtools)
+# PURPOSE: To create an Accounts Receivables Aged Analysis
 
-# Usually the input data file looks like this:
-# A data frame with the following columns:
-## Name Debitor / Creditor
-## Invoice Number
-## Currency of Invoice
-## Total Invoice Amount (gross)
-## Total Invoice Amount (net)
-## Open Invoice Amount (gross)
-## Open Invoice Amount (net)
-## Invoice Date
-## Due Date
+#' Calculates the number of outstanding days of invoices and assigns them to
+#' chosen categories of overdue days
+#'
+#' \code{aged_analysis} is the first part of a two-step workflow to create a
+#' Accounts Receivable Aged Analysis, widely used from accountants, auditors and
+#' management to monitor accounts receivables. It categorizes the invoices
+#' based on how long invoices have been outstanding.
+#'
+#' First the user should use \code{aged_analysis} to calculate the days
+#' outstanding and categorize them to the chosen bins of days overdue. By
+#' default, the following categories will be used: \enumerate{ \item Not overdue
+#' yet ("-Inf_to_0") \item Overdue between 0 and 30 days ("0_to_30") \item
+#' Overdue between 30 and 60 days ("30_to_60") \item Overdue between 60 and 90
+#' days ("60_to_90") \item Overdue more than 90 days ("90_to_Inf").}
+#'
+#' It is recommended to use \code{\link{aging_report}} as the next step.
+#'
+#' @param df \emph{a data frame} including columns indicating the following:
+#'   debtors ID/name, invoice number, invoice amount, and invoice due date.
+#'   Usually this is going to be a Debtors Open Item Report, including all
+#'   invoices that have not been (fully) paid to a specific date.
+#' @param due_date \emph{a column name} in the data frame indicating the due
+#'   date. Column name should be assigned to the parameter in quotation marks,
+#'   e.g. "Due_Date".
+#' @param report_date \emph{a report date} which is the benchmark if an invoice
+#'   is overdue or not, usually the same date that the Debtors Open Item Report
+#'   has been generated from. The default is the system date. The format must be
+#'   "YYYY-MM-DD".
+#' @param categories \emph{a vector of numbers} listing the days to be used as
+#'   overdue bins. By default it is 0 days, 30 days, 60 days and 90 days. Format
+#'   must be numeric values only, e.g. c(0, 30, 60, 90)
+#'
+#' @return a dataframe which has two additional columns: \describe{
+#'   \item{\strong{days_overdue}}{indicating the number of days between
+#'   report_date and due_date} \item{\strong{category}}{indicating the bin the
+#'   days_overdue have been sorted in based on user's categories vector} }
+#'
+#'   @examples
+#'   aged_analysis(dataframe, "Due_Date", "2022-12-31")
+#'   aged_analysis(dataframe, "Due_Date", categories=c(0,60,120))
 
-library(dplyr)
-library(tidyr)
-
-library(readxl) # only for testing
-test_file <- read_xlsx("Test_File_1.xlsx") # only for testing
-
-calc_days_overdue <- function(df, due_date, report_date = Sys.Date(), categories = c(0, 30, 60, 90), include.infinitive = TRUE) {
+aged_analysis <- function(df, due_date, report_date = Sys.Date(), categories = c(0, 30, 60, 90)) {
   # check for missing dates in due date column, if there are: stop and give out error message
-  stopifnot(sum(is.na(df[[due_date]])) == 0)
+  df[[due_date]] <- as.Date(df[[due_date]])
+  if (report_date != Sys.Date())
+    {report_date <- as.Date(report_date)}
+  stopifnot(inherits(df, "data.frame")) #should be a data frame
+  df[[due_date]][df[[due_date]]==-99] <- NA #in case NAs are displayed as -99
+  stopifnot(sum(is.na(df[[due_date]])) == 0) #no NAs in the due date column allowed
+  stopifnot(inherits(df[[due_date]], "Date")) #due dates should be formatted as dates
 
-  # including the infinitive values (not due more than X days, due more than X days) to the categories
-  if (include.infinitive == TRUE) {
-    categories <- append(categories, -Inf, 1)
-    categories <- append(categories, Inf)
-  }
+  categories <- append(categories, -Inf, 1)
+  categories <- append(categories, Inf)
 
   # calculating the number of days overdue from due date to report date
-  df <- mutate(df, days_overdue = report_date - as.Date(df[[due_date]]))
+  df <- dplyr::mutate(df, days_overdue = report_date - as.Date(df[[due_date]]))
   df$days_overdue <- as.numeric(df$days_overdue)
 
   # calculating the categories of days overdue (e.g. due between 30 and 60 days)
-  df <- mutate(df, category = cut(as.numeric(days_overdue), categories))
-
-  # label the categories of overdue dates
-  # category_labels<-NULL
-  # for (i in 1:length(categories)-1) {
-  #   category_labels[i] <-
-  #     paste(c(as.character(categories[i])," to ",as.character(categories[i+1])), collapse="")
-  # }
-  # category_labels <- append(category_labels, paste("Less than",categories[1]),0)
-  # category_labels <- append(category_labels, paste("More than",categories[length(categories)]))
-  # levels(df$category) <- category_labels
-  # df$category <- levels(df$category)[df$category]
+  df <- dplyr::mutate(df, category = cut(as.numeric(days_overdue), categories))
 
   # renaming the categories without the first and last character which are ( or [ and ) or ] to avoid special characters
   df$category <- gsub("^.|.$", "", df$category)
-  df$category <- gsub(", ", "_to_", df$category)
-  df$category <- gsub(",", "_to_", df$category)
+  df$category <- gsub(", ", " - ", df$category)
+  df$category <- gsub(",", " - ", df$category)
+
   return(df)
 }
 
-test_file_1 <- calc_days_overdue(test_file, due_date = "Due Date")
 
-###### two-step version of creating an aging table
+#' Creates a Accounts Receivable Aged Analysis Report
+#'
+#' \code{aging_report} is the second part of a two-step workflow to created a
+#' Accounts Receivable Aged Analysis, widely used from accountants, auditors
+#' and management to monitor accounts receivables. It categorizes the invoices
+#' based on how long invoices have been outstanding. For the first step, please
+#' refer to \code{\link{aged_analysis}}.
+#'
+#' @param df \emph{a data frame} including columns indicating the following:
+#'   debtors ID/name, invoice number, invoice amount, and invoice due date.
+#'   Usually this is going to be a Debtors Open Item Report, including all
+#'   invoices that have not been (fully) paid to a specific date.
+#' @param open_amount \emph{a column name} in the data frame indicating the open
+#'   amount of the invoice. Column name should be assigned to the parameter in
+#'   quotation marks, e.g. "Net_Amount". It is recommended to check if the open
+#'   amounts are all in the same currency.
+#' @param customer \emph{a column name} in the data frame indicating the ID or
+#'   name of the customer that the invoice belongs to. Column name should be
+#'   assigned to the parameter in quotation marks, e.g. "Customer". Customer
+#'   names or IDs should be unique, so if there are multiple debtors with the
+#'   same name, it might be useful to use the customer ID instead.
+#' @param invoice_number \emph{a column name} in the data frame indicating the
+#'   invoice number. Column name should be assigned to the parameter in
+#'   quotation marks, e.g. "Invoice_Number".
+#' @param include.credit.notes \emph{a logical}, by default set to TRUE. This
+#'   logical indicates if amounts that are negative (usually representing credit
+#'   notes) should be excluded or not. It might be useful to exclude credit
+#'   notes if the aged report is used to calculate the bad debt expenses. It
+#'   might be useful to include credit notes if the aged report is used to
+#'   monitor on a customer level how much of the balance is overdue. This
+#'   depends on the usage of the report and should be evaluated on an individual
+#'   basis of the user.
+#'
+#' @return a data frame which has the following contents: \describe{
+#'   \item{\strong{Customer names.}}{Each customer only appears once in the
+#'   list.} \item{\strong{A column for each category chosen in
+#'   \code{\link{aged_analysis}}}}{Indicating the amount which is due for a
+#'   specific customer in this duration.}
+#'   \item{\strong{Total}}{Indicating the total amount which is due for this customer.}}
+#'
+#'
 
-aging_table <- function(df, # the dataframe from the previous step
+aging_report <- function(df, # the dataframe from the previous step
                         open_amount, # the column which includes the open amount
-                        customer_column, # the column which includes the customer name / ID
+                        customer, # the column which includes the customer name / ID
                         invoice_number, # the column which includes the invoice number
                         include.credit.notes = TRUE) {
   if (include.credit.notes == FALSE) {
@@ -67,65 +122,80 @@ aging_table <- function(df, # the dataframe from the previous step
     warning("Negative amounts in the data frame, i.e. credit notes, have been excluded.")
   }
 
+  stopifnot(inherits(df, "data.frame")) #should be a data frame
+  stopifnot(inherits(df[[open_amount]], "numeric"))
+
+  if(!("category" %in% colnames(df))) {
+    stop("Please use calc_days_overdue() in the first step to assign the category of number of outstanding days.")
+  }
+
+  category_names <- unique(df$category)
+
   df_1 <-
-    pivot_wider(df,
+    tidyr::pivot_wider(df,
       names_from = category,
       values_from = open_amount,
       values_fill = 0,
-      values_fn = list(open_amount = sum),
-      names_prefix = "Category_"
+      values_fn = list(open_amount = sum)#,
+      #names_prefix = "Category_"
     )
 
-
   drop <- c(invoice_number, "days_overdue")
-  category_names <- colnames(df_1[, grepl("Category_", names(df_1))])
-  keep <- c(customer_column, category_names)
+  #category_names <- colnames(df_1[, grepl("Category_", names(df_1))])
+  keep <- c(customer, category_names)
 
   df_2 <- df_1[, !(names(df_1) %in% drop)]
   df_2 <- df_1[, (names(df_1) %in% keep)]
   colnames(df_2)[1] <- "Customer"
 
-  df_2 <- aggregate(. ~ Customer, df_2, sum)
+  df_2 <- stats::aggregate(. ~ Customer, df_2, sum)
+  df_2 <- df_2 %>% dplyr::select(gtools::mixedsort(colnames(df_2))) %>%
+    dplyr::select(starts_with("-Inf"), tidyselect::everything()) %>%
+    dplyr::select(Customer, tidyselect::everything()) %>%
+    dplyr::mutate(Total=base::
+                    rowSums(dplyr::select_if(., base::is.numeric)))
+
+  names(df_2) <- sub("-Inf -", "Less than", names(df_2), fixed = TRUE)
+  names(df_2) <- sub("- Inf", "or more", names(df_2), fixed = TRUE)
+
   return(df_2)
 }
 
-aging_table(test_file_1, open_amount = "Net_Amount", customer_column = "Customer", invoice_number = "Invoice_Number")
-
 ###### next function. create the aging table itself
 
-create_aging_table <- function(df, # the dataframe
-                               open_amount, # the column which includes the open amount
-                               customer_column, # the column which includes the customer name / ID
-                               invoice_number, # the column which includes the invoice number
-                               due_date, # the column which includes the due date of the invoice
-                               report_date = Sys.Date(), # date to which the days overdue will be calculated
-                               categories = c(0, 30, 60, 90), # the number of categories to be built in days
-                               include.infinitive = TRUE,
-                               include.credit.notes = TRUE) {
-  df <- calc_days_overdue(
-    df = df,
-    due_date = due_date,
-    report_date = as.Date(report_date),
-    categories = categories,
-    include.infinitive = include.infinitive
-  )
-
-  df <- aging_table(
-    df = df,
-    open_amount = all_of(open_amount),
-    customer_column = customer_column,
-    invoice_number = invoice_number,
-    include.credit.notes = include.credit.notes
-  )
-
-  # message("Aging Table based on ", df)
-  # message("The Cut-Off Date for the aging table is: ", report_date)
-  # if (include.credit.notes == TRUE) {
-  #   message("Credit notes are included in the report.")
-  # }
-  #   else message("Credit notes have been excluded from the report.")
-}
-aging_1 <- create_aging_table(test_file, open_amount = "Net_Amount", report_date = "2022-01-20", customer_column = "Customer", invoice_number = "Invoice_Number", due_date = "Due Date")
+# aged_analysis_report <- function(df, # the dataframe
+#                                open_amount, # the column which includes the open amount
+#                                customer, # the column which includes the customer name / ID
+#                                invoice_number, # the column which includes the invoice number
+#                                due_date, # the column which includes the due date of the invoice
+#                                report_date = Sys.Date(), # date to which the days overdue will be calculated
+#                                categories = c(0, 30, 60, 90), # the number of categories to be built in days
+#                                include.credit.notes = TRUE) {
+#
+#   df <- aged_analysis(
+#     df = df,
+#     due_date = due_date,
+#     report_date = report_date,
+#     categories = categories,
+#   )
+#
+#   df <- aging_report(
+#     df = df,
+#     open_amount = open_amount,
+#     customer = customer,
+#     invoice_number = invoice_number,
+#     include.credit.notes = include.credit.notes
+#   )
+#
+#   return(df)
+#   # message("Aging Table based on ", df)
+#   # message("The Cut-Off Date for the aging table is: ", report_date)
+#   # if (include.credit.notes == TRUE) {
+#   #   message("Credit notes are included in the report.")
+#   # }
+#   #   else message("Credit notes have been excluded from the report.")
+# }
 # format of report date has to be "YYYY-MM-DD"
 # format of categories has to be a vector of numeric values
 # format of columns has to be given as character string
+
