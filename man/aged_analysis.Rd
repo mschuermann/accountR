@@ -6,14 +6,14 @@
 chosen categories of overdue days}
 \usage{
 aged_analysis(
-  df,
+  data,
   due_date,
-  report_date = Sys.Date(),
+  report_date = as.Date(Sys.Date()),
   categories = c(0, 30, 60, 90)
 )
 }
 \arguments{
-\item{df}{\emph{a data frame} including columns indicating the following:
+\item{data}{\emph{a data frame} including columns indicating the following:
 debtors ID/name, invoice number, invoice amount, and invoice due date.
 Usually this is going to be a Debtors Open Item Report, including all
 invoices that have not been (fully) paid to a specific date.}

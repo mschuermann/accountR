@@ -5,7 +5,7 @@
 \title{Creates a Accounts Receivable Aged Analysis Report}
 \usage{
 aging_report(
-  df,
+  data,
   open_amount,
   customer,
   invoice_number,
@@ -13,7 +13,7 @@ aging_report(
 )
 }
 \arguments{
-\item{df}{\emph{a data frame} including columns indicating the following:
+\item{data}{\emph{a data frame} including columns indicating the following:
 debtors ID/name, invoice number, invoice amount, and invoice due date.
 Usually this is going to be a Debtors Open Item Report, including all
 invoices that have not been (fully) paid to a specific date.}
