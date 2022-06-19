@@ -20,13 +20,13 @@
 #'   \item{\strong{FX_rate}}{the applied exchange rate} \item{\strong{translated_amount}}{the amount translated to the chosen currency} }
 #'
 #'   @examples
-#'currencies <- data.frame(
+#' currencies <- data.frame(
 #'  currency = c("USD", "DKK", "USD", NA),
 #'  price = c(100, 329, 23, 799),
 #'  date = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-03-01")))
 #'
-#'FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "EUR")
-#'FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "USD", report_date = "2022-06-30")
+#' FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "EUR")
+#' FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "USD", report_date = "2022-06-30")
 
 FX_rate_convert <- function(data,
                             FC_column,
@@ -35,6 +35,8 @@ FX_rate_convert <- function(data,
                             report_date = as.Date(Sys.Date())) {
   data[[FC_column]] <-
     tidyr::replace_na(data[[FC_column]], new_currency)
+  official_currency_codes <- priceR::currencies()
+  stopifnot(unique(data[[FC_column]] %in% official_currency_codes$code))
   Symbols <- base::unique(data[[FC_column]])
   exchange_rates <- base::data.frame()
   for (currency in Symbols) {
