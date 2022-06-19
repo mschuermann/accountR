@@ -41,18 +41,24 @@
 #'   aged_analysis(dataframe, "Due_Date", "2022-12-31")
 #'   aged_analysis(dataframe, "Due_Date", categories=c(0,60,120))
 
-aged_analysis <- function(data, due_date, report_date = as.Date(Sys.Date()), categories = c(0, 30, 60, 90)) {
+aged_analysis <- function(data,
+                          due_date,
+                          report_date = as.Date(Sys.Date()),
+                          categories = c(0, 30, 60, 90)) {
+
   # check for missing dates in due date column, if there are: stop and give out error message
   data[[due_date]] <- as.Date(data[[due_date]])
-  if (report_date != Sys.Date())
-    {report_date <- as.Date(report_date)}
+  if (report_date != as.Date(Sys.Date()))
+  {report_date <- as.Date(report_date)}
+
   stopifnot(inherits(data, "data.frame")) #should be a data frame
+
   data[[due_date]][data[[due_date]]==-99] <- NA #in case NAs are displayed as -99
-  # data[[due_date]][data[[due_date]]=="N/A"] <- NA #in case NAs are displayed as "N/A"
-  # data[[due_date]][data[[due_date]]=="N A"] <- NA #in case NAs are displayed as "N A"
-  # data[[due_date]][data[[due_date]]=="Not Available"] <- NA  #in case NAs are displayed as "Not Available"
-  # data[[due_date]][data[[due_date]]=="not available"] <- NA  #in case NAs are displayed as "not available"
-  # data[[due_date]][data[[due_date]]=="Not available"] <- NA  #in case NAs are displayed as "Not available"
+  data[[due_date]][as.character(data[[due_date]])=="N/A"] <- NA #in case NAs are displayed as "N/A"
+  data[[due_date]][as.character(data[[due_date]])=="N A"] <- NA #in case NAs are displayed as "N A"
+  data[[due_date]][as.character(data[[due_date]])=="Not Available"] <- NA  #in case NAs are displayed as "Not Available"
+  data[[due_date]][as.character(data[[due_date]])=="not available"] <- NA  #in case NAs are displayed as "not available"
+  data[[due_date]][as.character(data[[due_date]])=="Not available"] <- NA  #in case NAs are displayed as "Not available"
 
   stopifnot(sum(is.na(data[[due_date]])) == 0) #no NAs in the due date column allowed
   stopifnot(inherits(data[[due_date]], "Date")) #due dates should be formatted as dates
@@ -65,7 +71,8 @@ aged_analysis <- function(data, due_date, report_date = as.Date(Sys.Date()), cat
   data$days_overdue <- as.numeric(data$days_overdue)
 
   # calculating the categories of days overdue (e.g. due between 30 and 60 days)
-  data <- dplyr::mutate(data, category = cut(as.numeric(dplyr::all_of(days_overdue)), dplyr::all_of(categories)))
+  data <- dplyr::mutate(data, category = cut(as.numeric(dplyr::all_of(days_overdue)),
+                                             dplyr::all_of(categories)))
 
   # renaming the categories without the first and last character which are ( or [ and ) or ] to avoid special characters
   data$category <- gsub("^.|.$", "",  data$category)
@@ -144,12 +151,10 @@ aging_report <- function(data, # the dataframe from the previous step
       names_from = category,
       values_from = open_amount,
       values_fill = 0,
-      values_fn = list(open_amount = sum)#,
-      #names_prefix = "Category_"
+      values_fn = list(open_amount = sum)
     )
 
   drop <- c(invoice_number, "days_overdue")
-  #category_names <- colnames(df_1[, grepl("Category_", names(df_1))])
   keep <- c(customer, category_names)
 
   df_2 <- df_1[, !(names(df_1) %in% drop)]
