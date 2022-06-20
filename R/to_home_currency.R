@@ -1,4 +1,5 @@
-# A function that downloads exchange currency to a specific date and returns a new column with the exchange rate in the selected currency
+# A function that downloads exchange currency to a specific date and returns a
+# new column with the exchange rate in the selected currency
 
 #' Converts foreign currencies in a data frame to a chosen currency by the user
 #'
@@ -19,15 +20,16 @@
 #' @return a dataframe which has two additional columns: \describe{
 #'   \item{\strong{FX_rate}}{the applied exchange rate} \item{\strong{translated_amount}}{the amount translated to the chosen currency} }
 #'
-#'   @examples
+#' @examples
 #' currencies <- data.frame(
-#'  currency = c("USD", "DKK", "USD", NA),
-#'  price = c(100, 329, 23, 799),
-#'  date = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-03-01")))
+#'   currency = c("USD", "DKK", "USD", NA),
+#'   price = c(100, 329, 23, 799),
+#'   date = as.Date(c("2020-01-01", "2020-02-01", "2020-03-01", "2020-03-01"))
+#' )
 #'
 #' FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "EUR")
 #' FX_rate_convert(data = currencies, amount = "price", FC_column = "currency", new_currency = "USD", report_date = "2022-06-30")
-
+#'
 FX_rate_convert <- function(data,
                             FC_column,
                             amount,
@@ -53,10 +55,12 @@ FX_rate_convert <- function(data,
   }
 
   data <-
-    base::merge(x = data,
-                y = exchange_rates,
-                by = FC_column,
-                all.x = TRUE)
+    base::merge(
+      x = data,
+      y = exchange_rates,
+      by = FC_column,
+      all.x = TRUE
+    )
   data <-
     dplyr::mutate(data, translated_amount = (as.numeric(data[[amount]]) * as.numeric(unlist(FX_rate))))
   data$translated_amount <- round(data$translated_amount, digits = 2)

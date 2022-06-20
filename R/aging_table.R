@@ -37,10 +37,10 @@
 #'   report_date and due_date} \item{\strong{category}}{indicating the bin the
 #'   days_overdue have been sorted in based on user's categories vector} }
 #'
-#'   @examples
-#'   aged_analysis(dataframe, "Due_Date", "2022-12-31")
-#'   aged_analysis(dataframe, "Due_Date", categories=c(0,60,120))
-
+#' @examples
+#' aged_analysis(dataframe, "Due_Date", "2022-12-31")
+#' aged_analysis(dataframe, "Due_Date", categories = c(0, 60, 120))
+#'
 aged_analysis <- function(data,
                           due_date,
                           report_date = as.Date(Sys.Date()),
@@ -48,20 +48,21 @@ aged_analysis <- function(data,
 
   # check for missing dates in due date column, if there are: stop and give out error message
   data[[due_date]] <- as.Date(data[[due_date]])
-  if (report_date != as.Date(Sys.Date()))
-  {report_date <- as.Date(report_date)}
+  if (report_date != as.Date(Sys.Date())) {
+    report_date <- as.Date(report_date)
+  }
 
-  stopifnot(inherits(data, "data.frame")) #should be a data frame
+  stopifnot(inherits(data, "data.frame")) # should be a data frame
 
-  data[[due_date]][data[[due_date]]==-99] <- NA #in case NAs are displayed as -99
-  data[[due_date]][as.character(data[[due_date]])=="N/A"] <- NA #in case NAs are displayed as "N/A"
-  data[[due_date]][as.character(data[[due_date]])=="N A"] <- NA #in case NAs are displayed as "N A"
-  data[[due_date]][as.character(data[[due_date]])=="Not Available"] <- NA  #in case NAs are displayed as "Not Available"
-  data[[due_date]][as.character(data[[due_date]])=="not available"] <- NA  #in case NAs are displayed as "not available"
-  data[[due_date]][as.character(data[[due_date]])=="Not available"] <- NA  #in case NAs are displayed as "Not available"
+  data[[due_date]][data[[due_date]] == -99] <- NA # in case NAs are displayed as -99
+  data[[due_date]][as.character(data[[due_date]]) == "N/A"] <- NA # in case NAs are displayed as "N/A"
+  data[[due_date]][as.character(data[[due_date]]) == "N A"] <- NA # in case NAs are displayed as "N A"
+  data[[due_date]][as.character(data[[due_date]]) == "Not Available"] <- NA # in case NAs are displayed as "Not Available"
+  data[[due_date]][as.character(data[[due_date]]) == "not available"] <- NA # in case NAs are displayed as "not available"
+  data[[due_date]][as.character(data[[due_date]]) == "Not available"] <- NA # in case NAs are displayed as "Not available"
 
-  stopifnot(sum(is.na(data[[due_date]])) == 0) #no NAs in the due date column allowed
-  stopifnot(inherits(data[[due_date]], "Date")) #due dates should be formatted as dates
+  stopifnot(sum(is.na(data[[due_date]])) == 0) # no NAs in the due date column allowed
+  stopifnot(inherits(data[[due_date]], "Date")) # due dates should be formatted as dates
 
   categories <- append(categories, -Inf, 1)
   categories <- append(categories, Inf)
@@ -71,11 +72,13 @@ aged_analysis <- function(data,
   data$days_overdue <- as.numeric(data$days_overdue)
 
   # calculating the categories of days overdue (e.g. due between 30 and 60 days)
-  data <- dplyr::mutate(data, category = cut(as.numeric(dplyr::all_of(days_overdue)),
-                                             dplyr::all_of(categories)))
+  data <- dplyr::mutate(data, category = cut(
+    as.numeric(dplyr::all_of(days_overdue)),
+    dplyr::all_of(categories)
+  ))
 
   # renaming the categories without the first and last character which are ( or [ and ) or ] to avoid special characters
-  data$category <- gsub("^.|.$", "",  data$category)
+  data$category <- gsub("^.|.$", "", data$category)
   data$category <- gsub(", ", " - ", data$category)
   data$category <- gsub(",", " - ", data$category)
 
@@ -128,19 +131,19 @@ aged_analysis <- function(data,
 #'
 
 aging_report <- function(data, # the dataframe from the previous step
-                        open_amount, # the column which includes the open amount
-                        customer, # the column which includes the customer name / ID
-                        invoice_number, # the column which includes the invoice number
-                        include.credit.notes = TRUE) {
+                         open_amount, # the column which includes the open amount
+                         customer, # the column which includes the customer name / ID
+                         invoice_number, # the column which includes the invoice number
+                         include.credit.notes = TRUE) {
   if (include.credit.notes == FALSE) {
     data <- data[!(data[[open_amount]] < 0)]
     warning("Negative amounts in the data frame, i.e. credit notes, have been excluded.")
   }
 
-  stopifnot(inherits(data, "data.frame")) #should be a data frame
+  stopifnot(inherits(data, "data.frame")) # should be a data frame
   stopifnot(inherits(data[[open_amount]], "numeric"))
 
-  if(!("category" %in% colnames(data))) {
+  if (!("category" %in% colnames(data))) {
     stop("Please use calc_days_overdue() in the first step to assign the category of number of outstanding days.")
   }
 
@@ -162,15 +165,15 @@ aging_report <- function(data, # the dataframe from the previous step
   colnames(df_2)[1] <- "Customer"
 
   df_2 <- stats::aggregate(. ~ Customer, df_2, sum)
-  df_2 <- df_2 %>% dplyr::select(gtools::mixedsort(colnames(df_2))) %>%
+  df_2 <- df_2 %>%
+    dplyr::select(gtools::mixedsort(colnames(df_2))) %>%
     dplyr::select(dplyr::starts_with("-Inf"), tidyselect::everything()) %>%
     dplyr::select(Customer, tidyselect::everything()) %>%
-    dplyr::mutate(Total=base::
-                    rowSums(dplyr::select_if(., base::is.numeric)))
+    dplyr::mutate(Total = base::
+    rowSums(dplyr::select_if(., base::is.numeric)))
 
   names(df_2) <- sub("-Inf -", "Less than", names(df_2), fixed = TRUE)
   names(df_2) <- sub("- Inf", "or more", names(df_2), fixed = TRUE)
 
   return(df_2)
 }
-
