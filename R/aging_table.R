@@ -43,14 +43,13 @@
 #'
 aged_analysis <- function(data,
                           due_date,
-                          report_date = as.Date(Sys.Date()),
+                          report_date,
                           categories = c(0, 30, 60, 90)) {
 
   # check for missing dates in due date column, if there are: stop and give out error message
   data[[due_date]] <- as.Date(data[[due_date]])
-  if (report_date != as.Date(Sys.Date())) {
-    report_date <- as.Date(report_date)
-  }
+
+  report_date <- as.Date(report_date)
 
   stopifnot(inherits(data, "data.frame")) # should be a data frame
 
