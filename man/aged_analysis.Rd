@@ -36,10 +36,6 @@ a dataframe which has two additional columns: \describe{
 \item{\strong{days_overdue}}{indicating the number of days between
 report_date and due_date} \item{\strong{category}}{indicating the bin the
 days_overdue have been sorted in based on user's categories vector} }
-
-@examples
-aged_analysis(dataframe, "Due_Date", "2022-12-31")
-aged_analysis(dataframe, "Due_Date", categories=c(0,60,120))
 }
 \description{
 \code{aged_analysis} is the first part of a two-step workflow to create a
@@ -56,4 +52,9 @@ Overdue between 30 and 60 days ("30_to_60") \item Overdue between 60 and 90
 days ("60_to_90") \item Overdue more than 90 days ("90_to_Inf").}
 
 It is recommended to use \code{\link{aging_report}} as the next step.
+}
+\examples{
+aged_analysis(dataframe, "Due_Date", "2022-12-31")
+aged_analysis(dataframe, "Due_Date", categories = c(0, 60, 120))
+
 }
