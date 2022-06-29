@@ -38,8 +38,9 @@
 #'   days_overdue have been sorted in based on user's categories vector} }
 #'
 #' @examples
-#' aged_analysis(dataframe, "Due_Date", "2022-12-31")
-#' aged_analysis(dataframe, "Due_Date", categories = c(0, 60, 120))
+#' example <- accountR::demo_file
+#' accountR:::aged_analysis(example, "due date", "2022-06-30")
+#' accountR:::aged_analysis(example, "due date", categories = c(0, 60, 120), "2022-06-30")
 #'
 aged_analysis <- function(data,
                           due_date,
@@ -111,6 +112,9 @@ aged_analysis <- function(data,
 #' @param invoice_number \emph{a column name} in the data frame indicating the
 #'   invoice number. Column name should be assigned to the parameter in
 #'   quotation marks, e.g. "Invoice_Number".
+#' @param category \emph{a column name} in the data frame indicating the
+#'   category of days the invoice is in. Column name should be assigned to the parameter in
+#'   quotation marks, e.g. "Categories". By default, the column name is "category" because it would be the standard output of \code{\link{aged_analysis}}.
 #' @param include.credit.notes \emph{a logical}, by default set to TRUE. This
 #'   logical indicates if amounts that are negative (usually representing credit
 #'   notes) should be excluded or not. It might be useful to exclude credit
@@ -126,13 +130,16 @@ aged_analysis <- function(data,
 #'   \code{\link{aged_analysis}}}}{Indicating the amount which is due for a
 #'   specific customer in this duration.}
 #'   \item{\strong{Total}}{Indicating the total amount which is due for this customer.}}
-#'
-#'
+#' @examples
+#' example <- accountR::demo_file
+#' example <- accountR:::aged_analysis(example, "due date", "2022-06-30")
+#' accountR:::aging_report(example, "amount", "company name", "invoice no")
 
 aging_report <- function(data, # the dataframe from the previous step
                          open_amount, # the column which includes the open amount
                          customer, # the column which includes the customer name / ID
                          invoice_number, # the column which includes the invoice number
+                         category = "category", # the column including the desired categories
                          include.credit.notes = TRUE) {
   if (include.credit.notes == FALSE) {
     data <- data[!(data[[open_amount]] < 0)]
@@ -142,11 +149,20 @@ aging_report <- function(data, # the dataframe from the previous step
   stopifnot(inherits(data, "data.frame")) # should be a data frame
   stopifnot(inherits(data[[open_amount]], "numeric"))
 
-  if (!("category" %in% colnames(data))) {
-    stop("Please use calc_days_overdue() in the first step to assign the category of number of outstanding days.")
+  data[[category]][data[[category]] == -99] <- NA # in case NAs are displayed as -99
+  data[[category]][as.character(data[[category]]) == "N/A"] <- NA # in case NAs are displayed as "N/A"
+  data[[category]][as.character(data[[category]]) == "N A"] <- NA # in case NAs are displayed as "N A"
+  data[[category]][as.character(data[[category]]) == "Not Available"] <- NA # in case NAs are displayed as "Not Available"
+  data[[category]][as.character(data[[category]]) == "not available"] <- NA # in case NAs are displayed as "not available"
+  data[[category]][as.character(data[[category]]) == "Not available"] <- NA # in case NAs are displayed as "Not available"
+
+  stopifnot(sum(is.na(data[[category]])) == 0) # no NAs in the due date column allowed
+
+  if (!(category %in% colnames(data))) {
+    stop("Please use calc_days_overdue() in the first step to assign the category of number of outstanding days or assign the equivalent column name in the variables.")
   }
 
-  category_names <- unique(data$category)
+  category_names <- unique(data[[category]])
 
   df_1 <-
     tidyr::pivot_wider(data,

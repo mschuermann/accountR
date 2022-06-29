@@ -1,4 +1,4 @@
-# A function that downloads exchange currency to a specific date and returns a
+# PURPOSE: A function that downloads exchange currency to a specific date and returns a
 # new column with the exchange rate in the selected currency
 
 #' Converts foreign currencies in a data frame to a chosen currency by the user
@@ -33,17 +33,20 @@
 #'
 #' @examples
 #' example <- accountR::demo_file
-#' FX_rate_convert(data = example, FC_column = "currency", amount = "amount", new_currency = "EUR", report_date = "2022-06-30")
+#' accountR:::FX_rate_convert(example, "currency", "amount", "EUR", "2022-05-30")
 #'
 FX_rate_convert <- function(data,
                             FC_column,
                             amount,
                             new_currency,
                             report_date) {
+  stopifnot(inherits(data, "data.frame")) # should be a data frame
+
   data[[FC_column]] <-
     tidyr::replace_na(data[[FC_column]], new_currency)
   official_currency_codes <- priceR::currencies()
   stopifnot(unique(data[[FC_column]] %in% official_currency_codes$code))
+
   Symbols <- base::unique(data[[FC_column]])
   exchange_rates <- base::data.frame()
   for (currency in Symbols) {
@@ -67,7 +70,7 @@ FX_rate_convert <- function(data,
       all.x = TRUE
     )
   data <-
-    dplyr::mutate(data, translated_amount = (as.numeric(data[[amount]]) * as.numeric(unlist(FX_rate))))
+    dplyr::mutate(data, translated_amount = (as.numeric(amount) * as.numeric(unlist(FX_rate))))
   data$translated_amount <- round(data$translated_amount, digits = 2)
   return(data)
 }
