@@ -9,6 +9,7 @@ aging_report(
   open_amount,
   customer,
   invoice_number,
+  category = "category",
   include.credit.notes = TRUE
 )
 }
@@ -33,6 +34,10 @@ same name, it might be useful to use the customer ID instead.}
 invoice number. Column name should be assigned to the parameter in
 quotation marks, e.g. "Invoice_Number".}
 
+\item{category}{\emph{a column name} in the data frame indicating the
+category of days the invoice is in. Column name should be assigned to the parameter in
+quotation marks, e.g. "Categories". By default, the column name is "category" because it would be the standard output of \code{\link{aged_analysis}}.}
+
 \item{include.credit.notes}{\emph{a logical}, by default set to TRUE. This
 logical indicates if amounts that are negative (usually representing credit
 notes) should be excluded or not. It might be useful to exclude credit
@@ -56,4 +61,9 @@ Accounts Receivable Aged Analysis, widely used from accountants, auditors
 and management to monitor accounts receivables. It categorizes the invoices
 based on how long invoices have been outstanding. For the first step, please
 refer to \code{\link{aged_analysis}}.
+}
+\examples{
+example <- accountR::demo_file
+example <- accountR:::aged_analysis(example, "due date", "2022-06-30")
+accountR:::aging_report(example, "amount", "company name", "invoice no")
 }

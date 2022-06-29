@@ -5,12 +5,7 @@
 \title{Calculates the number of outstanding days of invoices and assigns them to
 chosen categories of overdue days}
 \usage{
-aged_analysis(
-  data,
-  due_date,
-  report_date = as.Date(Sys.Date()),
-  categories = c(0, 30, 60, 90)
-)
+aged_analysis(data, due_date, report_date, categories = c(0, 30, 60, 90))
 }
 \arguments{
 \item{data}{\emph{a data frame} including columns indicating the following:
@@ -54,7 +49,8 @@ days ("60_to_90") \item Overdue more than 90 days ("90_to_Inf").}
 It is recommended to use \code{\link{aging_report}} as the next step.
 }
 \examples{
-aged_analysis(dataframe, "Due_Date", "2022-12-31")
-aged_analysis(dataframe, "Due_Date", categories = c(0, 60, 120))
+example <- accountR::demo_file
+accountR:::aged_analysis(example, "due date", "2022-06-30")
+accountR:::aged_analysis(example, "due date", categories = c(0, 60, 120), "2022-06-30")
 
 }
