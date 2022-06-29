@@ -1,5 +1,10 @@
 # Context: Testing the function FX_rate_convert()
 
+test_that("Function stops if it is not a data frame", {
+  test_vector <- c(150, 329)
+  expect_error(FX_rate_convert(data = test_vector))
+})
+
 test_that("downloads the correct foreign currency and calculates correct multiplication", {
   test_file_currency <- data.frame(
     currency = c("USD", "DKK", "USD", NA),
@@ -16,6 +21,7 @@ test_that("downloads the correct foreign currency and calculates correct multipl
   expect_vector(test_result_currency$translated_amount, c(44.23, 799.00, 92.73, 21.33))
   expect_vector(test_result_currency$FX_rate, c(0.134437, 1.000000, 0.927273, 0.927273))
 })
+
 
 test_that("correct dimensions in the dataframe", {
   test_file_currency <- data.frame(
