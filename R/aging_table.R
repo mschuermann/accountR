@@ -30,7 +30,7 @@
 #'   "YYYY-MM-DD".
 #' @param categories \emph{a vector of numbers} listing the days to be used as
 #'   overdue bins. By default it is 0 days, 30 days, 60 days and 90 days. Format
-#'   must be numeric values only, e.g. c(0, 30, 60, 90)
+#'   must be numeric values only, e.g. c(0, 30, 60, 90).
 #'
 #' @return a dataframe which has two additional columns: \describe{
 #'   \item{\strong{days_overdue}}{indicating the number of days between
@@ -42,6 +42,7 @@
 #' accountR:::aged_analysis(example, "due date", "2022-06-30")
 #' accountR:::aged_analysis(example, "due date", categories = c(0, 60, 120), "2022-06-30")
 #'
+#' @export
 aged_analysis <- function(data,
                           due_date,
                           report_date,
@@ -134,7 +135,7 @@ aged_analysis <- function(data,
 #' example <- accountR::demo_file
 #' example <- accountR:::aged_analysis(example, "due date", "2022-06-30")
 #' accountR:::aging_report(example, "amount", "company name", "invoice no")
-
+#' @export
 aging_report <- function(data, # the dataframe from the previous step
                          open_amount, # the column which includes the open amount
                          customer, # the column which includes the customer name / ID
@@ -159,7 +160,7 @@ aging_report <- function(data, # the dataframe from the previous step
   stopifnot(sum(is.na(data[[category]])) == 0) # no NAs in the due date column allowed
 
   if (!(category %in% colnames(data))) {
-    stop("Please use calc_days_overdue() in the first step to assign the category of number of outstanding days or assign the equivalent column name in the variables.")
+    stop("Please use aged_analysis() in the first step to assign the category of number of outstanding days or assign the equivalent column name in the variables.")
   }
 
   category_names <- unique(data[[category]])
@@ -181,7 +182,7 @@ aging_report <- function(data, # the dataframe from the previous step
 
   df_2 <- stats::aggregate(. ~ Customer, df_2, sum)
   df_2 <- df_2 %>%
-    dplyr::select(gtools::mixedsort(colnames(df_2))) %>%
+    dplyr::select(stringr::str_sort(colnames(df_2), numeric = TRUE)) %>%
     dplyr::select(dplyr::starts_with("-Inf"), tidyselect::everything()) %>%
     dplyr::select(Customer, tidyselect::everything()) %>%
     dplyr::mutate(Total = base::
@@ -192,3 +193,4 @@ aging_report <- function(data, # the dataframe from the previous step
 
   return(df_2)
 }
+

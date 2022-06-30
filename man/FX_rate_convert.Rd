@@ -40,5 +40,4 @@ user and documents the exchange rate used.
 \examples{
 example <- accountR::demo_file
 accountR:::FX_rate_convert(example, "currency", "amount", "EUR", "2022-05-30")
-
 }

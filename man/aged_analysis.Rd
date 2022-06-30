@@ -24,7 +24,7 @@ has been generated from. The default is the system date. The format must be
 
 \item{categories}{\emph{a vector of numbers} listing the days to be used as
 overdue bins. By default it is 0 days, 30 days, 60 days and 90 days. Format
-must be numeric values only, e.g. c(0, 30, 60, 90)}
+must be numeric values only, e.g. c(0, 30, 60, 90).}
 }
 \value{
 a dataframe which has two additional columns: \describe{
