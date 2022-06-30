@@ -1,5 +1,5 @@
 Package: accountR
-Title: What the Package Does (One Line, Title Case)
+Title: Tools for Accountants
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Marie Lisanne",
@@ -7,8 +7,8 @@ Authors@R:
            role = c("aut", "cre", "cph"),
            email = "schrmanm@tcd.ie",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Tools for Accountants.
-License: GPL (>= 3)
+Description: A collection of helpful tools for accounting professionals which currently will help to convert multiple currencies in a data frame at a time or generates the Trade Receivables Aged Analysis report.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
