@@ -15,7 +15,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -23,12 +23,18 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+knitr::opts_chunk$set(include = TRUE)
 library(accountR)
+library(priceR)
+```
+
+```{r echo=FALSE, out.width='25%'}
+knitr::include_graphics('Logo_accountR.jpg')
 ```
 
 # Introduction
 
-The accountR package provides useful tools for accounting and financial reporting. The tools allow users to convert data frames that include values of multiple currencies automatically into one user-defined currency at a specific reporting date. Additionally, it provides functions to automatically generate a Trade Receivables Aged Analysis report which can be used to calculate the Allowance for Doubtful Accounts or other tasks of the Accounts Receivable Management, such as monitoring of payment collections.
+The accountR package provides useful tools for accounting and financial reporting. The tools allow users to convert data frames that include values of multiple currencies automatically into one user-defined currency at a specific reporting date. Additionally, it provides functions to generate a Trade Receivables Aged Analysis report which can be used to calculate the Allowance for Doubtful Accounts or other tasks of the Accounts Receivable Management, such as monitoring of payment collections.
 
 # Setup
 
@@ -49,8 +55,142 @@ And then load it to use it in your session:
 library(accountR)
 ```
 
-# Data
-
 # Foreign Currency Conversion
 
+## Data
+
+You should load a data frame into your R environment which meets the following criteria:
+
+-   The data frame includes a column indicating the **currency code** in the ISO 4217 format (see below for all available codes), e.g. "EUR", "USD", etc. for each invoice or other observation/row.
+
+-   The data frame includes a column with the amount for each invoice or other observation/row which should be converted. The amount should be formatted as a numeric value.
+
+As an example it will be used the following data frame for this vignette. The data file is available within the package:
+
+```{r}
+example <- accountR::demo_file
+head(example)
+```
+
+## Supported currency codes
+
+You can check available ISO 4217 currency codes using the currencies function of the `priceR` package:
+
+```{r}
+head(priceR::currencies())
+```
+
+## Converting the data frame to any currency
+
+```{r}
+unique(example$currency)
+```
+
+The example data file has multiple currencies within itself.
+
+```{r}
+aggregate(example$amount, by=list(Currency=example$currency), FUN=sum)
+```
+
+Downloading all manually would need some time and therefore, which is why I would recommend using the `FX_rate_convert` function available in this package.
+
+To use the function, you have to give it some inputs:
+
+-   data: *a data frame* including columns indicating the following: foreign exchange course identifier and the amounts to be translated into the new currency.
+
+-   FC_column: *a column name* in the data frame indicating the foreign exchange course identifier. The column name should be entered in quotation marks.
+
+-   amount: *a column name* in the data frame indicating the amounts which should be translated into another currency. The column name should be entered in quotation marks.
+
+-   new_currency: *a currency code* indicating which currency the amounts should be translate into, e.g. "EUR". Please note that the currency have to entered in quotation marks. See `priceR::currencies()` for supported currency codes.
+
+-   report_date: *a date* to which the amounts should be translated into another currency. The default is the system date. The format must be "YYYY-MM-DD" (also in quotation marks).
+
+In the following the data frame has been converted into EUR as of 30th June 2022. The last two columns indicate:
+
+1.  **FX_rate:** exchange rate used for this invoice/observation/row.
+2.  **translated_amount:** converted amount in the new currency, in this example: EUR.
+
+```{r}
+example_in_EUR <- FX_rate_convert(example, "currency", "amount", "EUR", "2022-06-30")
+head(example_in_EUR)
+```
+
+You can convert the data frame to any currency or any date you might need. The following example translates the invoices into Danish krone at the 28th February 2022.
+
+```{r}
+example_in_DKK <- FX_rate_convert(example, "currency", "amount", "DKK", "2022-02-28")
+head(example_in_DKK)
+```
+
+This helps to interpret the data in the same currency and still keeping all relevant information that the data frame might have had before.
+
 # Trade Receivable Aged Analysis Report
+
+## Data
+
+The data frame that needs to be loaded into your environment should include columns indicating the following:
+
+-   debtors ID/name or the column that the report should be aggregated by, e.g. the region,
+
+-   invoice number,
+
+-   invoice amount, and
+
+-   invoice due date.
+
+Usually this is going to be a Debtors Open Item Report, including all invoices that have not been (fully) paid to a specific date.
+
+## Calculating the number of days that observations are overdue
+
+In our example data frame, there are multiple due dates in the range from the 5th of June until the 13th of September.
+
+```{r}
+summary(example_in_EUR$`due date`)
+```
+
+The function aged_analysis helps to identify how many days each item is overdue based on the report date that is entered as a parameter.
+
+The following parameters must be included:
+
+-   data: *a data frame* including columns indicating the following: debtors ID/name, invoice number, invoice amount, and invoice due date. Usually this is going to be a Debtors Open Item Report, including all invoices that have not been (fully) paid to a specific date.
+
+-   due_date: *a column name* in the data frame indicating the due date. Column name should be assigned to the parameter in quotation marks, e.g. "Due_Date".
+
+-   report_date: *a report date* which is the benchmark if an invoice is overdue or not, usually the same date that the Debtors Open Item Report has been generated from. The default is the system date. The format must be "YYYY-MM-DD".
+
+```{r}
+example_overdue <- aged_analysis(example_in_EUR, "due date", "2022-08-15")
+head(example_overdue)
+```
+
+If you want to have a different category set because of interest or specific requirements such as company policies, you can edit the parameter categories:
+
+The parameter `categories` is *a vector of numbers* listing the days to be used as overdue bins. By default it is 0 days, 30 days, 60 days and 90 days. Format must be numeric values only, e.g. c(0, 30, 60, 90).
+
+```{r}
+example_overdue_cat <- aged_analysis(example_in_EUR, "due date", "2022-08-15", categories = c(0, 100))
+head(example_overdue)
+```
+
+In this example the possible categories that are assigned to each invoice are:
+
+Not overdue yet/less than 0 days, due between 1 day and 100 days, due more than 100 days.
+
+## Generating the report
+
+The report gets much more readable and interpretative when using the aging_report function.
+
+It groups the amounts overdue by customer (as rows) and by overdue category (as columns) and shows the total amount due by customer.
+
+```{r}
+example_report <- aging_report(example_overdue, "translated_amount", "company name", "invoice no")
+head(example_report)
+```
+
+If you would rather group it by geographic or other meaningful criteria that might be useful for your use case, you can just replace the parameter `customer` with the respective column name.
+
+```{r}
+example_report_geo <- aging_report(example_overdue, "translated_amount", "country", "invoice no")
+head(example_report_geo)
+```
