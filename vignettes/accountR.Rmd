@@ -1,0 +1,56 @@
+---
+title: "accountR"
+author: "Marie Lisanne Schürmann"
+date: "Jun 30, 2022"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+  pdf_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{accountR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(accountR)
+```
+
+# Introduction
+
+The accountR package provides useful tools for accounting and financial reporting. The tools allow users to convert data frames that include values of multiple currencies automatically into one user-defined currency at a specific reporting date. Additionally, it provides functions to automatically generate a Trade Receivables Aged Analysis report which can be used to calculate the Allowance for Doubtful Accounts or other tasks of the Accounts Receivable Management, such as monitoring of payment collections.
+
+# Setup
+
+You must install the accountR library from CRAN or Github:
+
+```{r}
+#Installation from CRAN
+#install.packages("accountR")
+
+#or installation from Github
+#library(devtools)
+#install_github("mschuermann/accountR")
+```
+
+And then load it to use it in your session:
+
+```{r}
+library(accountR)
+```
+
+# Data
+
+# Foreign Currency Conversion
+
+# Trade Receivable Aged Analysis Report
