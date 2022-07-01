@@ -1,0 +1,69 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+```{r echo=FALSE, out.width='25%'}
+knitr::include_graphics('vignettes/Logo_accountR.jpg')
+```
+
+# accountR
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The goal of accountR is to provide useful tools for accounting and financial reporting. The tools allow users to convert data frames that include values of multiple currencies automatically into one user-defined currency at a specific reporting date. Additionally, it provides functions to generate a Trade Receivables Aged Analysis report which can be used to calculate the Allowance for Doubtful Accounts or other tasks of the Accounts Receivable Management, such as monitoring of payment collections.
+
+## Installation
+
+You can install the development version of accountR from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("mschuermann/accountR")
+```
+
+## Example for Currency Conversion
+
+This is a basic example which shows you how to convert a data frame full of different currencies into one currency:
+
+```{r example FX_rate_convert}
+library(accountR)
+
+data <- accountR::demo_file
+result <- 
+  FX_rate_convert(data, "currency", "amount", "EUR", "2022-06-30")
+
+head(result)
+```
+
+For further information and details please have a look into the accountR vignette.
+
+## Example for the Trade Receivables Aged Analysis report
+
+This is a common example on how to generate a Trade Receivables Aged Analysis report:
+
+```{r aging table}
+example_overdue <- aged_analysis(result, "due date", "2022-08-15")
+example_report <- aging_report(example_overdue, "translated_amount", "company name", "invoice no")
+head(example_report)
+```
+
+For further information and details please have a look into the accountR vignette.
+
+# About the Package
+
+If you have found issues or bugs, please let me know here: <https://github.com/mschuermann/accountR/issues>
+
+If you want to contribute, submit a suggestion for a useful tool that should be added here or anything, feel free to reach out by email (schrmanm\@tcd.ie) or on [Twitter](https://twitter.com/schrmanm) or post a suggestion in [here](https://github.com/mschuermann/accountR/issues) or ... whatever makes most sense to you - suggestions and contributions are very welcome!
