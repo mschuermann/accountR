@@ -2,16 +2,7 @@
 title: "accountR"
 author: "Marie Lisanne Schürmann"
 date: "Jul 1, 2022"
-output:
-  pdf_document:
-    toc: yes
-    toc_depth: 2
-  word_document:
-    toc: yes
-    toc_depth: '2'
-  html_document:
-    toc: yes
-    toc_depth: 2
+output: rmarkdown::html_vignette
 vignette: '%\VignetteIndexEntry{accountR} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}'
 ---
 
@@ -23,7 +14,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-knitr::opts_chunk$set(include = TRUE)
 library(accountR)
 library(priceR)
 ```
