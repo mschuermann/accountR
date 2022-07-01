@@ -1,12 +1,13 @@
 ---
 title: "accountR"
-author: "Marie Lisanne Schürmann"
-date: "Jul 1, 2022"
 output: rmarkdown::html_vignette
-vignette: '%\VignetteIndexEntry{accountR} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}'
+vignette: >
+  %\VignetteIndexEntry{accountR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r include=FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -14,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+knitr::opts_chunk$set(include = TRUE)
 library(accountR)
 library(priceR)
 ```
