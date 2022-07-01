@@ -1,5 +1,9 @@
 ^accountR\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^cran-comments\.md$
+^data-raw$
+^pkgdown$
+^_pkgdown\.yml$
 ^\.github$
 ^README\.Rmd$
