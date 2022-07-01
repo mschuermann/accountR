@@ -146,9 +146,8 @@ aging_report <- function(data, # the dataframe from the previous step
     data <- data[!(data[[open_amount]] < 0)]
     warning("Negative amounts in the data frame, i.e. credit notes, have been excluded.")
   }
-
   stopifnot(inherits(data, "data.frame")) # should be a data frame
-  stopifnot(inherits(data[[open_amount]], "numeric"))
+  stopifnot(inherits(data[[open_amount]], "numeric")) # amount should be numeric
 
   data[[category]][data[[category]] == -99] <- NA # in case NAs are displayed as -99
   data[[category]][as.character(data[[category]]) == "N/A"] <- NA # in case NAs are displayed as "N/A"
