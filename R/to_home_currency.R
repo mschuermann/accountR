@@ -69,8 +69,11 @@ FX_rate_convert <- function(data,
       by = FC_column,
       all.x = TRUE
     )
+
+  names(data)[names(data) == amount] <- "amount"
+
   data <-
-    dplyr::mutate(data, translated_amount = (as.numeric(amount) * as.numeric(unlist(FX_rate))))
+    dplyr::mutate(data, translated_amount = amount * FX_rate)
   data$translated_amount <- round(data$translated_amount, digits = 2)
   return(data)
 }

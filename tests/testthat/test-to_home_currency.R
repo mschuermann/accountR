@@ -18,8 +18,9 @@ test_that("downloads the correct foreign currency and calculates correct multipl
     new_currency = "EUR",
     report_date = "2022-05-30"
   )
-  expect_vector(test_result_currency$translated_amount, c(44.23, 799.00, 92.73, 21.33))
-  expect_vector(test_result_currency$FX_rate, c(0.134437, 1.000000, 0.927273, 0.927273))
+
+  expect_equal(test_result_currency$translated_amount, c(44.23, 799.00, 92.73, 21.33))
+  expect_equal(test_result_currency$FX_rate, c(0.134437, 1.000000, 0.927273, 0.927273))
 })
 
 
