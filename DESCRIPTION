@@ -5,8 +5,7 @@ Authors@R:
     person(given = "Marie Lisanne",
            family = "Schürmann",
            role = c("aut", "cre", "cph"),
-           email = "schrmanm@tcd.ie",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "schrmanm@tcd.ie")
 Description: A collection of helpful tools for accounting professionals which currently will help to convert multiple currencies in a data frame at a time or generates the Trade Receivables Aged Analysis report.
 License: MIT + file LICENSE
 Encoding: UTF-8
