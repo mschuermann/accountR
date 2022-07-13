@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-knitr::opts_chunk$set(include = TRUE)
+knitr::opts_chunk$set(include = FALSE)
 library(accountR)
 library(priceR)
 ```
