@@ -12,6 +12,7 @@ test_that("Function stops if it is not a data frame", {
 })
 
 test_result_1 <- aged_analysis(data = test_file_1, due_date = "due", report_date = "2022-06-30")
+factor(test_result_1$category)
 
 test_that("If there is a NA in Due Date: Stop", {
   test <- data.frame(
@@ -60,8 +61,8 @@ test_that("Column for categories is called category", {
   expect_true("category" %in% colnames(test_result_1))
 })
 
-category_exp <- c("90 - Inf", "60 - 90", "30 - 60")
 test_that("Category is correctly named", {
+  category_exp <- c("91 - Inf", "61 - 90", "31 - 60")
   expect_equal(test_result_1$category, category_exp)
 })
 
@@ -83,19 +84,19 @@ test_that("No NAs in the calculations", {
 
 test_that("Defined categories work", {
   test_result_2 <- aged_analysis(data = test_file_1, due_date = "due", report_date = "2022-06-30", categories = c(0, 50, 100))
-  category_exp_2 <- c("50 - 100", "0 - 50")
+  category_exp_2 <- c("51 - 100", "1 - 50")
   expect_equal(unique(test_result_2$category), category_exp_2)
 })
 
 test_that("Different length of categories", {
   test_result <- aged_analysis(data = test_file_1, due_date = "due", report_date = "2022-06-30", categories = c(5, 10))
-  expectation <- "10 - Inf"
+  expectation <- "11 - Inf"
   expect_equal(unique(test_result$category), expectation)
 })
 
 test_that("Unsorted category", {
   test_result <- aged_analysis(data = test_file_1, due_date = "due", report_date = "2022-06-30", categories = c(90, 5, 30))
-  expectation <- c("90 - Inf", "30 - 90")
+  expectation <- c("91 - Inf", "31 - 90")
   expect_equal(unique(test_result$category), expectation)
 })
 
@@ -136,7 +137,7 @@ test_that("Error given when there is no column given indicating the number of ov
 })
 
 test_that("Column names are correct", {
-  colnames_expect <- c("Customer", "30 - 60", "60 - 90", "90 or more", "Total")
+  colnames_expect <- c("Customer", "31 - 60", "61 - 90", "91 or more", "Total")
   expect_equal(colnames(test_result_3), colnames_expect)
 })
 
@@ -150,9 +151,9 @@ test_that("Number of rows is correct", {
 
 test_that("Aging table is correctly calculated", {
   expect_equal(test_result_3$Customer, c("Alfa", "Bravo", "Charlie"))
-  expect_equal(test_result_3$`30 - 60`, c(0, 0, 300))
-  expect_equal(test_result_3$`60 - 90`, c(0, 200, 0))
-  expect_equal(test_result_3$`90 or more`, c(100, 0, 0))
+  expect_equal(test_result_3$`31 - 60`, c(0, 0, 300))
+  expect_equal(test_result_3$`61 - 90`, c(0, 200, 0))
+  expect_equal(test_result_3$`91 or more`, c(100, 0, 0))
   expect_equal(test_result_3$Total, c(100, 200, 300))
 })
 

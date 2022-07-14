@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -162,7 +162,7 @@ The parameter `categories` is *a vector of numbers* listing the days to be used 
 
 ```{r}
 example_overdue_cat <- aged_analysis(example_in_EUR, "due date", "2022-08-15", categories = c(0, 100))
-head(example_overdue)
+head(example_overdue_cat)
 ```
 
 In this example the possible categories that are assigned to each invoice are:
@@ -190,7 +190,7 @@ Additionally, the function sets the logical parameter *include.credit.notes* to 
 To provide some thoughts on the decision whether to include it or not, the following might help you to decide because it totally depends on the individual application: It might be useful to exclude credit notes, setting the logical to FALSE, if the aged report is used to calculate the bad debt expenses. It might be useful to include credit notes, setting the logical to TRUE, if the aged report is used to monitor on a customer level how much of the balance is overdue. Again, this depends on the usage of the report and should be evaluated on an individual basis of the user.
 
 ```{r}
-example_report <- aging_report(example_overdue, "translated_amount", "company name", "invoice no")
+example_report <- aging_report(data = example_overdue, open_amount = "translated_amount", customer = "company name", invoice_number = "invoice no")
 head(example_report)
 ```
 

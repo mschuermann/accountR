@@ -67,21 +67,26 @@ aged_analysis <- function(data,
 
   categories <- append(categories, -Inf, 1)
   categories <- append(categories, Inf)
+  cat_labels <- c()
+  for (i in 1:length(categories)-1) {
+    categories <- sort(unique(categories))
+    add_one <- as.numeric(categories[i])+1
+    name_cat <- paste(add_one,"-",categories[i+1])
+    cat_labels[i] <- as.character(name_cat)
+  }
 
   # calculating the number of days overdue from due date to report date
   data <- dplyr::mutate(data, days_overdue = report_date - as.Date(data[[due_date]]))
   data$days_overdue <- as.numeric(data$days_overdue)
 
-  # calculating the categories of days overdue (e.g. due between 30 and 60 days)
+  # calculating the categories of days overdue (e.g. due between more than 30 and less or equal to 60 days)
   data <- dplyr::mutate(data, category = cut(
     as.numeric(dplyr::all_of(days_overdue)),
-    dplyr::all_of(categories)
+    dplyr::all_of(categories),
+    labels = cat_labels
   ))
 
-  # renaming the categories without the first and last character which are ( or [ and ) or ] to avoid special characters
-  data$category <- gsub("^.|.$", "", data$category)
-  data$category <- gsub(", ", " - ", data$category)
-  data$category <- gsub(",", " - ", data$category)
+  data <- data %>% dplyr::mutate_if(is.factor, as.character)
 
   return(data)
 }
@@ -142,6 +147,7 @@ aging_report <- function(data, # the dataframe from the previous step
                          invoice_number, # the column which includes the invoice number
                          category = "category", # the column including the desired categories
                          include.credit.notes = TRUE) {
+  days_overdue <- NULL
   if (include.credit.notes == FALSE) {
     data <- data[!(data[[open_amount]] < 0)]
     warning("Negative amounts in the data frame, i.e. credit notes, have been excluded.")
@@ -167,7 +173,7 @@ aging_report <- function(data, # the dataframe from the previous step
   df_1 <-
     tidyr::pivot_wider(data,
       names_from = category,
-      values_from = open_amount,
+      values_from = dplyr::all_of(open_amount),
       values_fill = 0,
       values_fn = list(open_amount = sum)
     )
@@ -183,7 +189,8 @@ aging_report <- function(data, # the dataframe from the previous step
   df_2 <- df_2 %>%
     dplyr::select(stringr::str_sort(colnames(df_2), numeric = TRUE)) %>%
     dplyr::select(dplyr::starts_with("-Inf"), tidyselect::everything()) %>%
-    dplyr::select(Customer, tidyselect::everything()) %>%
+    dplyr::select(Customer, tidyselect::everything())
+  df_2 <- df_2 %>%
     dplyr::mutate(Total = base::
     rowSums(dplyr::select_if(., base::is.numeric)))
 
