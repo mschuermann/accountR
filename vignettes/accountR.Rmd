@@ -9,13 +9,13 @@ vignette: >
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  collapse = FALSE,
   comment = "#>"
 )
 ```
 
 ```{r setup}
-knitr::opts_chunk$set(include = FALSE)
+knitr::opts_chunk$set(include = TRUE)
 library(accountR)
 library(priceR)
 ```
@@ -103,7 +103,7 @@ In the following the data frame has been converted into EUR as of 30th June 2022
 1.  **FX_rate:** exchange rate used for this invoice/observation/row.
 2.  **translated_amount:** converted amount in the new currency, in this example: EUR.
 
-```{r}
+```{r echo=TRUE}
 example_in_EUR <- FX_rate_convert(example, "currency", "amount", "EUR", "2022-06-30")
 head(example_in_EUR)
 ```
