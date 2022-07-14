@@ -12,9 +12,6 @@ knitr::opts_chunk$set(
   collapse = FALSE,
   comment = "#>"
 )
-```
-
-```{r setup}
 knitr::opts_chunk$set(include = TRUE)
 library(accountR)
 library(priceR)

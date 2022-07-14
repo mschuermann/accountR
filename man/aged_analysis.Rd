@@ -42,9 +42,9 @@ based on how long invoices have been outstanding.
 First the user should use \code{aged_analysis} to calculate the days
 outstanding and categorize them to the chosen bins of days overdue. By
 default, the following categories will be used: \enumerate{ \item Not overdue
-yet ("-Inf_to_0") \item Overdue between 0 and 30 days ("0_to_30") \item
-Overdue between 30 and 60 days ("30_to_60") \item Overdue between 60 and 90
-days ("60_to_90") \item Overdue more than 90 days ("90_to_Inf").}
+yet ("-Inf - 0") \item Overdue between 1 and 30 days ("1 - 30") \item
+Overdue between 31 and 60 days ("31 - 60") \item Overdue between 61 and 90
+days ("61 - 90") \item Overdue more than 90 days ("91 - Inf").}
 
 It is recommended to use \code{\link{aging_report}} as the next step.
 }

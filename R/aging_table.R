@@ -12,7 +12,7 @@
 #' outstanding and categorize them to the chosen bins of days overdue. By
 #' default, the following categories will be used: \enumerate{ \item Not overdue
 #' yet ("-Inf - 0") \item Overdue between 1 and 30 days ("1 - 30") \item
-#' Overdue between 30 and 60 days ("31 - 60") \item Overdue between 60 and 90
+#' Overdue between 31 and 60 days ("31 - 60") \item Overdue between 61 and 90
 #' days ("61 - 90") \item Overdue more than 90 days ("91 - Inf").}
 #'
 #' It is recommended to use \code{\link{aging_report}} as the next step.
